@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class Http: NSObject {
+open class Http: NSObject {
     
     public let baseUrl: URL
     public let bypassInvalidCertificate: Bool
