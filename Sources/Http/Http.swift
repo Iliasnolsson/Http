@@ -11,13 +11,20 @@ open class Http: NSObject {
     
     public let baseUrl: URL
     public let bypassInvalidCertificate: Bool
+    public let accessTokenBearerName: String
     private var session = URLSession.shared
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
     
-    public init(baseUrl: URL, bypassInvalidCertificate: Bool = false) {
+    /// Simplifier for http calls to web api 
+    /// - Parameters:
+    ///   - baseUrl: The route url for all posts & gets,  Example:  https://localhost:5001/api
+    ///   - bypassInvalidCertificate: Default is False, Enabled calls to servers with invalid certificates, Example: enabled calls to localhost
+    ///   - accessTokenBearerName: Default is "Bearer",  starter word in the Http header field for access token.
+    public init(baseUrl: URL, bypassInvalidCertificate: Bool = false, accessTokenBearerName: String = "Bearer") {
         self.baseUrl = baseUrl
         self.bypassInvalidCertificate = bypassInvalidCertificate
+        self.accessTokenBearerName = accessTokenBearerName
         super.init()
         self.session = .init(configuration: .default, delegate: self, delegateQueue: nil)
     }
@@ -25,16 +32,19 @@ open class Http: NSObject {
     open func postRequest(forUrl url: URL) -> URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        addHeaders(to: &request)
         return request
     }
     
     open func getRequest(forUrl url: URL) -> URLRequest {
         var request = URLRequest(url: url)
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        addHeaders(to: &request)
         return request
+    }
+    
+    // Gets added to URLReqest if not nil
+    open func accessToken() -> String? {
+        return nil
     }
     
 }
@@ -147,6 +157,18 @@ extension Http {
             return baseUrl.appending(path: addon)
         }
         return baseUrl.appendingPathComponent(addon)
+    }
+    
+    private func addHeaders(to request: inout URLRequest) {
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        if let accessToken = accessToken(), !accessToken.isEmpty {
+            addHeaderAccessToken(accessToken, to: &request)
+        }
+    }
+    
+    private func addHeaderAccessToken(_ token: String, to request: inout URLRequest) {
+        request.addValue(accessTokenBearerName + " " + token, forHTTPHeaderField: "Authorization")
     }
     
     
