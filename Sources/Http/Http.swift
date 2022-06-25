@@ -15,7 +15,7 @@ open class Http: NSObject {
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
     
-    init(baseUrl: URL, bypassInvalidCertificate: Bool = false) {
+    public init(baseUrl: URL, bypassInvalidCertificate: Bool = false) {
         self.baseUrl = baseUrl
         self.bypassInvalidCertificate = bypassInvalidCertificate
         super.init()
