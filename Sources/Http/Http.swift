@@ -22,7 +22,7 @@ open class Http: NSObject {
         self.session = .init(configuration: .default, delegate: self, delegateQueue: nil)
     }
     
-    public func postRequest(forUrl url: URL) -> URLRequest {
+    open func postRequest(forUrl url: URL) -> URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -30,7 +30,7 @@ open class Http: NSObject {
         return request
     }
     
-    public func getRequest(forUrl url: URL) -> URLRequest {
+    open func getRequest(forUrl url: URL) -> URLRequest {
         var request = URLRequest(url: url)
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("application/json", forHTTPHeaderField: "Accept")
