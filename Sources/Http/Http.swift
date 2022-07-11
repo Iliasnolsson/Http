@@ -7,19 +7,11 @@
 
 import Foundation
 
-class HttpDelegate: NSObject, URLSessionDelegate {
-    
-    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
-    }
-}
-
-
 open class Http: NSObject {
     
     public let baseUrl: URL
     public let accessTokenBearerName: String
-    private static let session = URLSession(configuration: .default, delegate: HttpDelegate(), delegateQueue: nil)
+    private var session = URLSession.shared
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
     
@@ -28,10 +20,13 @@ open class Http: NSObject {
     ///   - baseUrl: The route url for all posts & gets,  Example:  https://localhost:5001/api
     ///   - bypassInvalidCertificate: Default is False, Enabled calls to servers with invalid certificates, Example: enabled calls to localhost
     ///   - accessTokenBearerName: Default is "Bearer",  starter word in the Http header field for access token.
-    public init(baseUrl: URL, accessTokenBearerName: String = "Bearer") {
+    public init(baseUrl: URL, bypassInvalidCertificate: Bool = false, accessTokenBearerName: String = "Bearer") {
         self.baseUrl = baseUrl
         self.accessTokenBearerName = accessTokenBearerName
         super.init()
+        if (bypassInvalidCertificate) {
+            self.session = .init(configuration: .default, delegate: self, delegateQueue: nil)
+        }
     }
     
     open func postRequest(forUrl url: URL) async -> URLRequest {
@@ -60,7 +55,7 @@ public extension Http {
     final func get<T: Decodable>(_ urlAddon: String) async -> HttpObjectResult<T> {
         do {
             let request = await getRequest(forUrl: urlForAddon(urlAddon))
-            let (data, response) = try await Http.session.data(for: request)
+            let (data, response) = try await session.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200
             else {throw URLError(.badServerResponse)}
             let object = try decoder.decode(T.self, from: data)
@@ -85,7 +80,7 @@ public extension Http {
             if let data = data {
                 request.httpBody = data
             }
-            let (data, response) = try await Http.session.data(for: request)
+            let (data, response) = try await session.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200
             else {throw URLError(.badServerResponse)}
             let object = try decoder.decode(T.self, from: data)
@@ -115,7 +110,7 @@ public extension Http {
             if let data = data {
                 request.httpBody = data
             }
-            let (_, response) = try await Http.session.data(for: request)
+            let (_, response) = try await session.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200
             else {throw URLError(.badServerResponse)}
             return .success
@@ -139,7 +134,7 @@ public extension Http {
             if let data = data {
                 request.httpBody = data
             }
-            let (responseData, response) = try await Http.session.data(for: request)
+            let (responseData, response) = try await session.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {throw URLError(.badServerResponse)}
             let object = try decoder.decode(T.self, from: responseData)
             return .success(object)
@@ -149,6 +144,16 @@ public extension Http {
     }
     
 }
+
+extension Http: URLSessionDelegate {
+    
+    public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        let urlCredential = URLCredential(trust: challenge.protectionSpace.serverTrust!)
+        completionHandler(.useCredential, urlCredential)
+    }
+    
+}
+
 
 extension Http {
     
