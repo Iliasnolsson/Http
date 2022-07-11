@@ -29,21 +29,21 @@ open class Http: NSObject {
         self.session = .init(configuration: .default, delegate: self, delegateQueue: nil)
     }
     
-    open func postRequest(forUrl url: URL) -> URLRequest {
+    open func postRequest(forUrl url: URL) async -> URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        addHeaders(to: &request)
+        await addHeaders(to: &request)
         return request
     }
     
-    open func getRequest(forUrl url: URL) -> URLRequest {
+    open func getRequest(forUrl url: URL) async -> URLRequest {
         var request = URLRequest(url: url)
-        addHeaders(to: &request)
+        await addHeaders(to: &request)
         return request
     }
     
     // Gets added to URLReqest if not nil
-    open func accessToken() -> String? {
+    open func accessToken() async -> String? {
         return nil
     }
     
@@ -54,7 +54,7 @@ public extension Http {
     
     final func get<T: Decodable>(_ urlAddon: String) async -> HttpObjectResult<T> {
         do {
-            let request = getRequest(forUrl: urlForAddon(urlAddon))
+            let request = await getRequest(forUrl: urlForAddon(urlAddon))
             let (data, response) = try await session.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200
             else {throw URLError(.badServerResponse)}
@@ -76,7 +76,7 @@ public extension Http {
 
     final func get<T: Decodable>(_ urlAddon: String, data: Data? = nil) async -> HttpObjectResult<T> {
         do {
-            var request = getRequest(forUrl: urlForAddon(urlAddon))
+            var request = await getRequest(forUrl: urlForAddon(urlAddon))
             if let data = data {
                 request.httpBody = data
             }
@@ -106,7 +106,7 @@ public extension Http {
     
     final func post(_ urlAddon: String, data: Data) async -> HttpResult {
         do {
-            let request = postRequest(forUrl: urlForAddon(urlAddon))
+            let request = await postRequest(forUrl: urlForAddon(urlAddon))
             let (_, response) = try await session.upload(for: request, from: data)
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200
             else {throw URLError(.badServerResponse)}
@@ -127,7 +127,7 @@ public extension Http {
     
     final func post<T: Decodable>(_ urlAddon: String, data: Data? = nil) async -> HttpObjectResult<T> {
         do {
-            var request = postRequest(forUrl: urlForAddon(urlAddon))
+            var request = await postRequest(forUrl: urlForAddon(urlAddon))
             if let data = data {
                 request.httpBody = data
             }
@@ -163,10 +163,10 @@ extension Http {
         return baseUrl.appendingPathComponent(addon)
     }
     
-    private func addHeaders(to request: inout URLRequest) {
+    private func addHeaders(to request: inout URLRequest) async {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("application/json", forHTTPHeaderField: "Accept")
-        if let accessToken = accessToken(), !accessToken.isEmpty {
+        if let accessToken = await accessToken(), !accessToken.isEmpty {
             addHeaderAccessToken(accessToken, to: &request)
         }
     }
