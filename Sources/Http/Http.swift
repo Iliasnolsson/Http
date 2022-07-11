@@ -7,11 +7,19 @@
 
 import Foundation
 
+class HttpDelegate: NSObject, URLSessionDelegate {
+    
+    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
+    }
+}
+
+
 open class Http: NSObject {
     
     public let baseUrl: URL
     public let accessTokenBearerName: String
-    private static let session = URLSession.shared
+    private static let session = URLSession(configuration: .default, delegate: HttpDelegate(), delegateQueue: nil)
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
     
