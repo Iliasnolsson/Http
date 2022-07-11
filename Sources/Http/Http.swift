@@ -125,13 +125,10 @@ public extension Http {
         return .fail(message: "")
     }
     
-    final func post<T: Decodable>(_ urlAddon: String, data: Data? = nil) async -> HttpObjectResult<T> {
+    final func post<T: Decodable>(_ urlAddon: String, data: Data) async -> HttpObjectResult<T> {
         do {
-            var request = await postRequest(forUrl: urlForAddon(urlAddon))
-            if let data = data {
-                request.httpBody = data
-            }
-            let (responseData, response) = try await session.data(for: request)
+            let request = await postRequest(forUrl: urlForAddon(urlAddon))
+            let (responseData, response) = try await session.upload(for: request, from: data)
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {throw URLError(.badServerResponse)}
             let object = try decoder.decode(T.self, from: responseData)
             return .success(object)
