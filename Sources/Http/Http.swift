@@ -104,11 +104,13 @@ public extension Http {
         return .fail(message: "")
     }
     
-    final func post(_ urlAddon: String, data: Data) async -> HttpResult {
+    final func post(_ urlAddon: String, data: Data? = nil) async -> HttpResult {
         do {
-            let request = await postRequest(forUrl: urlForAddon(urlAddon))
-            let (_, response) = try await session.upload(for: request, from: data)
-            debugPrint(response as? HTTPURLResponse ?? "")
+            var request = await postRequest(forUrl: urlForAddon(urlAddon))
+            if let data = data {
+                request.httpBody = data
+            }
+            let (_, response) = try await session.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200
             else {throw URLError(.badServerResponse)}
             return .success
