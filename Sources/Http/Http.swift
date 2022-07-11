@@ -61,7 +61,7 @@ public extension Http {
             let object = try decoder.decode(T.self, from: data)
             return .success(object)
         } catch {
-            return .fail(message: "")
+            return .fail(message: error.localizedDescription)
         }
     }
     
@@ -86,7 +86,7 @@ public extension Http {
             let object = try decoder.decode(T.self, from: data)
             return .success(object)
         } catch {
-            return .fail(message: "")
+            return .fail(message: error.localizedDescription)
         }
     }
     
@@ -112,7 +112,7 @@ public extension Http {
             else {throw URLError(.badServerResponse)}
             return .success
         } catch {
-            return .fail(message: "")
+            return .fail(message: error.localizedDescription)
         }
     }
     
@@ -136,7 +136,7 @@ public extension Http {
             let object = try decoder.decode(T.self, from: responseData)
             return .success(object)
         } catch {
-            return .fail(message: "")
+            return .fail(message: error.localizedDescription)
         }
     }
     
