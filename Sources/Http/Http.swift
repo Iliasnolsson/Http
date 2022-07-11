@@ -108,6 +108,7 @@ public extension Http {
         do {
             let request = await postRequest(forUrl: urlForAddon(urlAddon))
             let (_, response) = try await session.upload(for: request, from: data)
+            debugPrint(response as? HTTPURLResponse ?? "")
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200
             else {throw URLError(.badServerResponse)}
             return .success
