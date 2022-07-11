@@ -15,7 +15,7 @@ open class Http: NSObject {
     private let decoder = JSONDecoder()
     private let encoder = JSONEncoder()
     
-    /// Simplifier for http calls to web api 
+    /// Simplifier for http calls to web api
     /// - Parameters:
     ///   - baseUrl: The route url for all posts & gets,  Example:  https://localhost:5001/api
     ///   - bypassInvalidCertificate: Default is False, Enabled calls to servers with invalid certificates, Example: enabled calls to localhost
@@ -65,7 +65,7 @@ public extension Http {
         }
     }
     
-    final func get<T: Decodable>(_ urlAddon: String, dict: [String : String]) async -> HttpObjectResult<T> {
+    final func get<T: Decodable>(_ urlAddon: String, dict: [String : Any]) async -> HttpObjectResult<T> {
         if (JSONSerialization.isValidJSONObject(dict)) {
             if let data = try? JSONSerialization.data(withJSONObject: dict) {
                 return await get(urlAddon, data: data)
@@ -95,22 +95,19 @@ public extension Http {
 // MARK: Post
 public extension Http {
     
-    final func post(_ urlAddon: String, dict: [String : String]) async -> HttpResult {
+    final func post(_ urlAddon: String, dict: [String : Any]) async -> HttpResult {
         if (JSONSerialization.isValidJSONObject(dict)) {
-            if let data = try? JSONSerialization.data(withJSONObject: dict) {
+            if let data = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted]) {
                 return await post(urlAddon, data: data)
             }
         }
         return .fail(message: "")
     }
     
-    final func post(_ urlAddon: String, data: Data? = nil) async -> HttpResult {
+    final func post(_ urlAddon: String, data: Data) async -> HttpResult {
         do {
-            var request = await postRequest(forUrl: urlForAddon(urlAddon))
-            if let data = data {
-                request.httpBody = data
-            }
-            let (_, response) = try await session.data(for: request)
+            let request = await postRequest(forUrl: urlForAddon(urlAddon))
+            let (_, response) = try await session.upload(for: request, from: data)
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200
             else {throw URLError(.badServerResponse)}
             return .success
@@ -164,9 +161,10 @@ extension Http {
         return baseUrl.appendingPathComponent(addon)
     }
     
-    private func addHeaders(to request: inout URLRequest) async {
+    private func addHeaders(to request: inout URLRequest) async -> Void {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("application/json", forHTTPHeaderField: "Accept")
+     
         if let accessToken = await accessToken(), !accessToken.isEmpty {
             addHeaderAccessToken(accessToken, to: &request)
         }
@@ -178,3 +176,4 @@ extension Http {
     
     
 }
+
