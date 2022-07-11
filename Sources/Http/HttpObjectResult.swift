@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class HttpObjectResponse<T> {
+public class HttpObjectResult<T> {
     
     public let object: T!
     public let succeeded: Bool
@@ -19,11 +19,11 @@ public class HttpObjectResponse<T> {
         self.message = message
     }
     
-    static func success(_ object: T) -> HttpObjectResponse {
+    static func success(_ object: T) -> HttpObjectResult {
         return .init(object: object, succeeded: true, message: "")
     }
     
-    static func fail(message: String) -> HttpObjectResponse {
+    static func fail(message: String) -> HttpObjectResult {
         return .init(object: nil, succeeded: false, message: message)
     }
     

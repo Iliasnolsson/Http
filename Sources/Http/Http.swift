@@ -52,7 +52,7 @@ open class Http: NSObject {
 // MARK: Get
 public extension Http {
     
-    final func get<T: Decodable>(_ urlAddon: String) async -> HttpObjectResponse<T> {
+    final func get<T: Decodable>(_ urlAddon: String) async -> HttpObjectResult<T> {
         do {
             let request = getRequest(forUrl: urlForAddon(urlAddon))
             let (data, response) = try await session.data(for: request)
@@ -65,7 +65,7 @@ public extension Http {
         }
     }
     
-    final func get<T: Decodable>(_ urlAddon: String, dict: [String : String]) async -> HttpObjectResponse<T> {
+    final func get<T: Decodable>(_ urlAddon: String, dict: [String : String]) async -> HttpObjectResult<T> {
         if (JSONSerialization.isValidJSONObject(dict)) {
             if let data = try? JSONSerialization.data(withJSONObject: dict) {
                 return await get(urlAddon, data: data)
@@ -74,7 +74,7 @@ public extension Http {
         return .fail(message: "")
     }
 
-    final func get<T: Decodable>(_ urlAddon: String, data: Data) async -> HttpObjectResponse<T> {
+    final func get<T: Decodable>(_ urlAddon: String, data: Data) async -> HttpObjectResult<T> {
         do {
             var request = getRequest(forUrl: urlForAddon(urlAddon))
             request.httpBody = data
@@ -93,7 +93,7 @@ public extension Http {
 // MARK: Post
 public extension Http {
     
-    final func post(_ urlAddon: String, dict: [String : String]) async -> HttpResponse {
+    final func post(_ urlAddon: String, dict: [String : String]) async -> HttpResult {
         if (JSONSerialization.isValidJSONObject(dict)) {
             if let data = try? JSONSerialization.data(withJSONObject: dict) {
                 return await post(urlAddon, data: data)
@@ -102,7 +102,7 @@ public extension Http {
         return .fail(message: "")
     }
     
-    final func post(_ urlAddon: String, data: Data) async -> HttpResponse {
+    final func post(_ urlAddon: String, data: Data) async -> HttpResult {
         do {
             let request = postRequest(forUrl: urlForAddon(urlAddon))
             let (_, response) = try await session.upload(for: request, from: data)
@@ -114,7 +114,7 @@ public extension Http {
         }
     }
     
-    final func post<T: Decodable>(_ urlAddon: String, dict: [String : Any]) async -> HttpObjectResponse<T> {
+    final func post<T: Decodable>(_ urlAddon: String, dict: [String : Any]) async -> HttpObjectResult<T> {
         if (JSONSerialization.isValidJSONObject(dict)) {
             if let data = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted]) {
                 return await post(urlAddon, data: data)
@@ -123,7 +123,7 @@ public extension Http {
         return .fail(message: "")
     }
     
-    final func post<T: Decodable>(_ urlAddon: String, data: Data) async -> HttpObjectResponse<T> {
+    final func post<T: Decodable>(_ urlAddon: String, data: Data) async -> HttpObjectResult<T> {
         do {
             var request = postRequest(forUrl: urlForAddon(urlAddon))
             request.httpBody = data
