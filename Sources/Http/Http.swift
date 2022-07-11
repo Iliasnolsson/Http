@@ -74,10 +74,12 @@ public extension Http {
         return .fail(message: "")
     }
 
-    final func get<T: Decodable>(_ urlAddon: String, data: Data) async -> HttpObjectResult<T> {
+    final func get<T: Decodable>(_ urlAddon: String, data: Data? = nil) async -> HttpObjectResult<T> {
         do {
             var request = getRequest(forUrl: urlForAddon(urlAddon))
-            request.httpBody = data
+            if let data = data {
+                request.httpBody = data
+            }
             let (data, response) = try await session.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200
             else {throw URLError(.badServerResponse)}
@@ -123,10 +125,12 @@ public extension Http {
         return .fail(message: "")
     }
     
-    final func post<T: Decodable>(_ urlAddon: String, data: Data) async -> HttpObjectResult<T> {
+    final func post<T: Decodable>(_ urlAddon: String, data: Data? = nil) async -> HttpObjectResult<T> {
         do {
             var request = postRequest(forUrl: urlForAddon(urlAddon))
-            request.httpBody = data
+            if let data = data {
+                request.httpBody = data
+            }
             let (responseData, response) = try await session.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {throw URLError(.badServerResponse)}
             let object = try decoder.decode(T.self, from: responseData)
