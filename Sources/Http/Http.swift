@@ -64,22 +64,10 @@ public extension Http {
             return .fail(message: error.localizedDescription)
         }
     }
-    
-    final func get<T: Decodable>(_ urlAddon: String, dict: [String : Any]) async -> HttpObjectResult<T> {
-        if (JSONSerialization.isValidJSONObject(dict)) {
-            if let data = try? JSONSerialization.data(withJSONObject: dict) {
-                return await get(urlAddon, data: data)
-            }
-        }
-        return .fail(message: "")
-    }
 
-    final func get<T: Decodable>(_ urlAddon: String, data: Data? = nil) async -> HttpObjectResult<T> {
+    final func get<T: Decodable>(_ urlAddon: String, query: [String : LosslessStringConvertible]) async -> HttpObjectResult<T> {
         do {
-            var request = await getRequest(forUrl: urlForAddon(urlAddon))
-            if let data = data {
-                request.httpBody = data
-            }
+            let request = await getRequest(forUrl: urlForAddon(urlAddon, query: query))
             let (data, response) = try await session.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200
             else {throw URLError(.badServerResponse)}
@@ -95,19 +83,19 @@ public extension Http {
 // MARK: Post
 public extension Http {
     
-    final func post(_ urlAddon: String, dict: [String : Any]) async -> HttpResult {
-        if (JSONSerialization.isValidJSONObject(dict)) {
-            if let data = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted]) {
-                return await post(urlAddon, data: data)
+    final func post(_ urlAddon: String, body: [String : Any]) async -> HttpResult {
+        if (JSONSerialization.isValidJSONObject(body)) {
+            if let data = try? JSONSerialization.data(withJSONObject: body, options: [.prettyPrinted]) {
+                return await post(urlAddon, bodyForData: data)
             }
         }
         return .fail(message: "")
     }
     
-    final func post(_ urlAddon: String, data: Data) async -> HttpResult {
+    final func post(_ urlAddon: String, bodyForData: Data) async -> HttpResult {
         do {
             let request = await postRequest(forUrl: urlForAddon(urlAddon))
-            let (_, response) = try await session.upload(for: request, from: data)
+            let (_, response) = try await session.upload(for: request, from: bodyForData)
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200
             else {throw URLError(.badServerResponse)}
             return .success
@@ -116,19 +104,19 @@ public extension Http {
         }
     }
     
-    final func post<T: Decodable>(_ urlAddon: String, dict: [String : Any]) async -> HttpObjectResult<T> {
-        if (JSONSerialization.isValidJSONObject(dict)) {
-            if let data = try? JSONSerialization.data(withJSONObject: dict, options: [.prettyPrinted]) {
-                return await post(urlAddon, data: data)
+    final func post<T: Decodable>(_ urlAddon: String, body: [String : Any]) async -> HttpObjectResult<T> {
+        if (JSONSerialization.isValidJSONObject(body)) {
+            if let data = try? JSONSerialization.data(withJSONObject: body, options: [.prettyPrinted]) {
+                return await post(urlAddon, bodyForData: data)
             }
         }
         return .fail(message: "")
     }
     
-    final func post<T: Decodable>(_ urlAddon: String, data: Data) async -> HttpObjectResult<T> {
+    final func post<T: Decodable>(_ urlAddon: String, bodyForData: Data) async -> HttpObjectResult<T> {
         do {
             let request = await postRequest(forUrl: urlForAddon(urlAddon))
-            let (responseData, response) = try await session.upload(for: request, from: data)
+            let (responseData, response) = try await session.upload(for: request, from: bodyForData)
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {throw URLError(.badServerResponse)}
             let object = try decoder.decode(T.self, from: responseData)
             return .success(object)
@@ -148,7 +136,6 @@ extension Http: URLSessionDelegate {
     
 }
 
-
 extension Http {
     
     private func urlForAddon(_ addon: String) -> URL {
@@ -156,6 +143,18 @@ extension Http {
             return baseUrl.appending(path: addon)
         }
         return baseUrl.appendingPathComponent(addon)
+    }
+    
+    private func urlForAddon(_ addon: String, query: [String : LosslessStringConvertible]) -> URL {
+        var url = urlForAddon(addon)
+        var queryItems = [URLQueryItem]()
+        for (key, value) in query {
+            queryItems.append(.init(name: key, value: value.description))
+        }
+        if #available(iOS 16.0, *) {
+            url.append(queryItems: queryItems)
+        }
+        return url
     }
     
     private func addHeaders(to request: inout URLRequest) async -> Void {
@@ -173,4 +172,5 @@ extension Http {
     
     
 }
+
 
