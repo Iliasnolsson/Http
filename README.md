@@ -5,7 +5,6 @@ Swift Package which simplifies async http calls to web api.
 #### Post
 Make a simple post call to https://fakeUrl.com/sign-in
 - bypassInvalidCertificate: true will stop iOS from complaining when the website of the baseUrl has an invalid certificate
-- 
 ```swift
 import Http
 
