@@ -19,11 +19,11 @@ public class HttpObjectResult<T> {
         self.message = message
     }
     
-    static func success(_ object: T) -> HttpObjectResult {
+    public static func success(_ object: T) -> HttpObjectResult {
         return .init(object: object, succeeded: true, message: "")
     }
     
-    static func fail(message: String) -> HttpObjectResult {
+    public static func fail(message: String) -> HttpObjectResult {
         return .init(object: nil, succeeded: false, message: message)
     }
     

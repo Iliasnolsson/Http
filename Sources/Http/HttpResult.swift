@@ -17,9 +17,9 @@ public class HttpResult {
         self.message = message
     }
     
-    static var success: HttpResult {.init(succeeded: true, message: "")}
+    public static var success: HttpResult {.init(succeeded: true, message: "")}
     
-    static func fail(message: String) -> HttpResult {
+    public static func fail(message: String) -> HttpResult {
         return .init(succeeded: false, message: message)
     }
     
