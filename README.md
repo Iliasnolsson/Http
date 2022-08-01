@@ -1,6 +1,6 @@
 # Http
 
-Swift Package which simplifies async http calls to web api. 
+A Switch Package to simplify asynchronous http calls & for easier implementation of web api bearer token logic
 
 #### Post
 Make a simple post call to https://fakeUrl.com/sign-in
