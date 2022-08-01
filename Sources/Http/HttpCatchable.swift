@@ -9,9 +9,9 @@ import Foundation
 
 open class HttpCatchable: InternalHttpBaseObject {
     
-    private func handle<T: Decodable>(_ sessionMethod: (() async throws -> ((Data, URLResponse)))) async throws -> T {
+    private func handle<T>(_ sessionMethod: (() async throws -> ((Data, URLResponse)))) async throws -> T where T: Decodable {
         do {
-            if let (responseData, response) = try await sessionMethod() as? (Data, HTTPURLResponse) {
+            if let (responseData, response) = (try await sessionMethod()) as? (Data, HTTPURLResponse) {
                 if response.statusCode == 200 {
                     return try decoder.decode(T.self, from: responseData)
                 }
@@ -20,7 +20,7 @@ open class HttpCatchable: InternalHttpBaseObject {
             throw HttpError.server(statusCode: .invalidStatusCode, message: "Bad Server Response")
         } catch let error as HttpError {
             throw error
-        } catch DecodingError.dataCorrupted(_:) {
+        } catch is DecodingError {
             throw HttpError.app(.appSideDecodeFailure)
         } catch {
             throw HttpError.transport()
