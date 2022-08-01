@@ -27,22 +27,6 @@ open class HttpCatchable: InternalHttpBaseObject {
         }
     }
     
-    private func handle(_ sessionMethod: (() async throws -> ((Data, URLResponse)))) async throws {
-        do {
-            if let response = (try await sessionMethod()).1 as? HTTPURLResponse {
-                if response.statusCode != 200 {
-                    throw HttpError.server(statusCode: response.statusCode, message: response.description)
-                }
-            } else {
-                throw HttpError.server(statusCode: .invalidStatusCode, message: "Bad Server Response")
-            }
-        } catch let error as HttpError {
-            throw error
-        } catch {
-            throw HttpError.transport()
-        }
-    }
-    
 }
 
 // MARK: Get
@@ -71,9 +55,19 @@ public extension HttpCatchable {
     
     final func post(_ urlAddon: String, bodyForData: Data) async throws {
         let request = await postRequest(forUrl: urlForAddon(urlAddon))
-        try await handle({() in
-            return try await session.upload(for: request, from: bodyForData)
-        })
+        do {
+            if let response = (try await session.upload(for: request, from: bodyForData)).1 as? HTTPURLResponse {
+                if response.statusCode != 200 {
+                    throw HttpError.server(statusCode: response.statusCode, message: response.description)
+                }
+            } else {
+                throw HttpError.server(statusCode: .invalidStatusCode, message: "Bad Server Response")
+            }
+        } catch let error as HttpError {
+            throw error
+        } catch {
+            throw HttpError.transport()
+        }
     }
     
     final func post<T: Decodable>(_ urlAddon: String, body: [String : Any]) async throws -> T {
