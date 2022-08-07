@@ -9,9 +9,6 @@ import Foundation
 
 open class HttpCatchableGeneric<S: HttpEndpoint>: HttpCatchable {
     
-    
-    
-    
 }
 
 // MARK: Get
