@@ -39,6 +39,10 @@ public extension HttpCatchable {
         })
     }
     
+    final func get<T: Decodable>(_ urlAddon: HttpEndpoint, query: [String : LosslessStringConvertible] = [:]) async throws -> T {
+        return try await get(urlAddon.rawValue, query: query)
+    }
+    
 }
 
 // MARK: Post
@@ -51,6 +55,10 @@ public extension HttpCatchable {
         } else {
             throw HttpError.app(.appSideBodyJsonConversion)
         }
+    }
+    
+    final func post(_ urlAddon: HttpEndpoint, body: [String : Any]) async throws {
+        return try await post(urlAddon.rawValue, body: body)
     }
     
     final func post(_ urlAddon: String, bodyForData: Data) async throws {
@@ -70,6 +78,10 @@ public extension HttpCatchable {
         }
     }
     
+    final func post(_ urlAddon: HttpEndpoint, bodyForData: Data) async throws {
+        return try await post(urlAddon.rawValue, bodyForData: bodyForData)
+    }
+    
     final func post<T: Decodable>(_ urlAddon: String, body: [String : Any]) async throws -> T {
         if (JSONSerialization.isValidJSONObject(body)),
             let data = try? JSONSerialization.data(withJSONObject: body, options: [.prettyPrinted]) {
@@ -78,12 +90,21 @@ public extension HttpCatchable {
         throw HttpError.app(.appSideBodyJsonConversion)
     }
     
+    final func post<T: Decodable>(_ urlAddon: HttpEndpoint, body: [String : Any]) async throws -> T {
+        return try await post(urlAddon.rawValue, body: body)
+    }
+    
     final func post<T: Decodable>(_ urlAddon: String, bodyForData: Data) async throws -> T {
         let request = await postRequest(forUrl: urlForAddon(urlAddon))
         return try await handle({() in
             return try await session.upload(for: request, from: bodyForData)
         })
     }
+    
+    final func post<T: Decodable>(_ urlAddon: HttpEndpoint, bodyForData: Data) async throws -> T {
+        return try await post(urlAddon.rawValue, bodyForData: bodyForData)
+    }
+    
     
 }
 

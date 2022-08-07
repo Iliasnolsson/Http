@@ -25,6 +25,8 @@ open class InternalHttpBaseObject: NSObject {
         self.baseUrl = baseUrl
         self.accessTokenBearerName = accessTokenBearerName
         super.init()
+        
+        
         if (bypassInvalidCertificate) {
             self.session = .init(configuration: .default, delegate: self, delegateQueue: nil)
         }
