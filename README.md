@@ -16,27 +16,33 @@ An map of the most important classes enums & stuff from this Swift Package
 ### class Http
 Used for making post & get calls to given url.
 > Main Methods:
-- get(_ urlAddon: String) async -> HttpResult
-- get\<T>(_ urlAddon: String) async -> HttpObjectResult\<T>
-- post(_ urlAddon: String) async -> HttpResult
-- post\<T>(_ urlAddon: String) async -> HttpObjectResult\<T>
+```swift
+get(_ urlAddon: String) async -> HttpResult
+get\<T>(_ urlAddon: String) async -> HttpObjectResult\<T>
+post(_ urlAddon: String) async -> HttpResult
+post\<T>(_ urlAddon: String) async -> HttpObjectResult\<T>
+```
 
 ### class HttpCatchable: *Http*
 Recommended over *Http*. Used for making post & get calls to given url. Same functionality as Http but throws a detailed failure when an api request fails.
 
 > Main Methods:
-- get(_ urlAddon: String) throws async
-- get\<T>(_ urlAddon: String) throws async -> T
-- post(_ urlAddon: String) throws async 
-- post\<T>(_ urlAddon: String) throws async -> T
+```swift
+get(_ urlAddon: String) throws async
+get\<T>(_ urlAddon: String) throws async -> T
+post(_ urlAddon: String) throws async 
+post\<T>(_ urlAddon: String) throws async -> T
+```
 
 ### class HttpCatchableGeneric\<S: HttpEndpoint>: HttpCatchable
 Recommended over *HttpCatchable* when building large scale apps. 
 > Main Methods:
-- get(_ urlAddon: S) throws async
-- get\<T>(_ urlAddon: S) throws async -> T
-- post(_ urlAddon: S) throws async 
-- post\<T>(_ urlAddon: S) throws async -> T
+```swift
+get(_ urlAddon: S) throws async
+get\<T>(_ urlAddon: S) throws async -> T
+post(_ urlAddon: S) throws async 
+post\<T>(_ urlAddon: S) throws async -> T
+```
 
 ## Examples
 
