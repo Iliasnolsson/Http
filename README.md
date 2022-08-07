@@ -18,9 +18,9 @@ Used for making post & get calls to given url.
 > Main Methods:
 ```swift
 get(_ urlAddon: String) async -> HttpResult
-get\<T>(_ urlAddon: String) async -> HttpObjectResult\<T>
+get<T>(_ urlAddon: String) async -> HttpObjectResult<T>
 post(_ urlAddon: String) async -> HttpResult
-post\<T>(_ urlAddon: String) async -> HttpObjectResult\<T>
+post<T>(_ urlAddon: String) async -> HttpObjectResult<T>
 ```
 
 ### class HttpCatchable: *Http*
@@ -29,9 +29,9 @@ Recommended over *Http*. Used for making post & get calls to given url. Same fun
 > Main Methods:
 ```swift
 get(_ urlAddon: String) throws async
-get\<T>(_ urlAddon: String) throws async -> T
+get<T>(_ urlAddon: String) throws async -> T
 post(_ urlAddon: String) throws async 
-post\<T>(_ urlAddon: String) throws async -> T
+post<T>(_ urlAddon: String) throws async -> T
 ```
 
 ### class HttpCatchableGeneric\<S: HttpEndpoint>: HttpCatchable
@@ -39,9 +39,9 @@ Recommended over *HttpCatchable* when building large scale apps.
 > Main Methods:
 ```swift
 get(_ urlAddon: S) throws async
-get\<T>(_ urlAddon: S) throws async -> T
+get<T>(_ urlAddon: S) throws async -> T
 post(_ urlAddon: S) throws async 
-post\<T>(_ urlAddon: S) throws async -> T
+post<T>(_ urlAddon: S) throws async -> T
 ```
 
 ## Examples
