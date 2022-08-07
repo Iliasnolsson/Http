@@ -1,5 +1,5 @@
 # Http
-A Switch Package to simplify asynchronous http calls & for easier implementation of web api bearer token logic
+A Switch Package to simplify asynchronous http calls & for easier implementation of web api bearer token logic (OAuth)
 
 <img src="icon.jpg">
 
