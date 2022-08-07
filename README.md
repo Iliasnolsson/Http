@@ -29,10 +29,10 @@ Recommended over *Http*. Used for making post & get calls to given url. Same fun
 ##### Main Methods:
 
 ```swift
-func get(_ urlAddon: String) throws async
-func get<T>(_ urlAddon: String) throws async -> T
-func post(_ urlAddon: String) throws async 
-func post<T>(_ urlAddon: String) throws async -> T
+func get(_ urlAddon: String) async throws
+func get<T>(_ urlAddon: String) async throws -> T
+func post(_ urlAddon: String) async throws
+func post<T>(_ urlAddon: String) async throws -> T
 ```
 
 ### class HttpCatchableGeneric\<S: HttpEndpoint>: HttpCatchable
@@ -40,10 +40,10 @@ Recommended over *HttpCatchable* when building large scale apps.
 ##### Main Methods:
 
 ```swift
-func get(_ urlAddon: S) throws async 
-func get<T>(_ urlAddon: S) throws async -> T
-func post(_ urlAddon: S) throws async 
-func post<T>(_ urlAddon: S) throws async -> T
+func get(_ urlAddon: S) async throws 
+func get<T>(_ urlAddon: S) async throws -> T
+func post(_ urlAddon: S) async throws
+func post<T>(_ urlAddon: S) async throws -> T
 ```
 
 ## Examples
